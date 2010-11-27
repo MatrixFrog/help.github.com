@@ -71,9 +71,13 @@ Using the edit command on a commit will cause rebase to pick the commit and paus
 
 This command lets you combine two or more commits into a single commit.  When used the commit will be picked and then amended into the commit above it.  Git will then pause the rebase and open your text editor with the commit messages from both commits.  After you have edited the message to your satisfaction save the file and close the editor.  Git will resume the rebase.
 
+### Exec
+
+This command lets you execute any program you like. You could use it to build or test your code, to make sure that you didn't break something. If the command fails (that is, if it exits with a non-zero response code), then rebase will pause and let you fix the problem before continuing.
+
 ### Example
 
-In this rebase we will cover all 3 commands.  We start our rebase with `git rebase -i master~5` and are presented with this file in our editor:
+In this rebase we will cover almost all of the commands.  We start our rebase with `git rebase -i master~5` and are presented with this file in our editor:
 
 <pre>
 pick 1fc6c95 Patch A
@@ -86,8 +90,11 @@ pick 7b36971 something to move before patch B
 #
 # Commands:
 #  p, pick = use commit
+#  r, reword = use commit, but edit the commit message
 #  e, edit = use commit, but stop for amending
 #  s, squash = use commit, but meld into previous commit
+#  f, fixup = like "squash", but discard this commit's log message
+#  x <cmd>, exec <cmd> = Run a shell command <cmd>, and stop if it fails
 #
 # If you remove a line here THAT COMMIT WILL BE LOST.
 # However, if you remove everything, the rebase will be aborted.
@@ -101,6 +108,7 @@ pick 1fc6c95 Patch A
 squash fa39187 something to add to patch A
 pick 7b36971 something to move before patch B
 pick 6b2481b Patch B
+exec make
 edit dd1475d something I want to split
 </pre>
 
@@ -138,7 +146,9 @@ Once you are satisfied with your changes, run
         git rebase --continue
 </pre>
 
-At this point we would edit the files we need, do a `git commit --amend`, make our second commit, and ensure that our working tree and index are clean.  Now we can tell git to complete the rebase with `git rebase --continue`.  You might wish to use `git-gui` for amending commits like this, it can make things much easier by visualizing the changes you are committing.
+Now that both patch A and patch B are in place, we compile all the code using the `make` command.  If this fails, then we can figure out what went wrong, fix it, and commit the fix. Once we're done with that, we go on with a `git rebase --continue`. 
+
+At this point we would edit the files we need for the "something I want to split" commit, do a `git commit --amend`, and ensure that our working tree and index are clean.  You might wish to use `git-gui` for amending commits like this, it can make things much easier by visualizing the changes you are committing.  Now we can tell git to continue the rebase with `git rebase --continue`.  Since this is the last commit on the list, we are done, and the terminal will say something like `Successfully rebased and updated refs/heads/master`.
 
 Notes
 -----
